@@ -15,17 +15,33 @@ class   BTree_Node {
     const   POINTER_NEW_ROOT    = -1;
 
     /**
-     * key => value
+     * 删除关键词右侧指针(子节点)标识
+     */
+    const   DELETE_FLAG_RIGHT   = '>';
+
+    /**
+     * 删除关键词左侧指针(子节点)标识
+     */
+    const   DELETE_FLAG_LEFT    = '<';
+
+    /**
+     * 数据 图结构 key => value
      */
     private $_data;
 
     /**
-     * pointers
+     * 子节点指针
      */
     private $_children;
 
+    /**
+     * 上级节点实例
+     */
     private $_parent;
 
+    /**
+     * 节点指针
+     */
     private $_pointer;
 
     public  function __construct ($data = array(), $children = array(), $parent = NULL, $pointer = self::POINTER_NEW) {
@@ -93,7 +109,7 @@ class   BTree_Node {
     /**
      * 删除key
      */
-    public  function delete ($key, $leftChild = true) {
+    public  function delete ($key, $deleteFlag = self::DELETE_FLAG_LEFT) {
 
         $keyList        = array_keys($this->_data);
         $offset         = array_search($key, $keyList);
@@ -112,7 +128,7 @@ class   BTree_Node {
         array_splice($keyList, $offset, 1);
         array_splice($valueList, $offset, 1);
 
-        if ($leftChild) {
+        if (self::DELETE_FLAG_LEFT === $deleteFlag) {
 
             array_splice($this->_children, $offset, 1);
         } else {

@@ -136,6 +136,7 @@ class   BTree_Store {
         $keyContent         = str_pad(implode('', array_map(array($this, '_keyPad'), array_keys($node->data()))), $this->_keyAreaSize(), ' ');
         $valueContent       = str_pad(implode('', array_map(array($this, '_longPack'), $node->data())), $this->_valueAreaSize(), $this->_longPack(0));
         $content            = $childrenContent . $keyContent . $valueContent;
+
         fwrite($this->_fileHandle, $content);
 
         return  $pointer;

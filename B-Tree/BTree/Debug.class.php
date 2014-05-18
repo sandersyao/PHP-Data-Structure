@@ -32,8 +32,13 @@ class   BTree_Debug implements BTree_Command {
 
     public  function call ($params) {
 
-        $data   = array(
-            'pointer_root'  => $this->_store->rootPointer()
+        $rootPointer    = $this->_store->rootPointer();
+        $pointer        = isset($params['pointer']) && $params['pointer'] > 0
+                        ? $params['pointer']
+                        : $rootPointer;
+        $data           = array(
+            'pointer_root'  => $rootPointer,
+            'target'        => $this->_store->readNode($pointer),
         );
 
         var_dump($data);

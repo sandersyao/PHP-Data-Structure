@@ -118,17 +118,19 @@ class   BTree_Delete
             return  true;
         }
 
-        if ($this->_deleteMoveRight($node, $key) || $this->_deleteMoveLeft($node, $key)) {
-
-            return  true;
-        }
-
-        return  false;
+        return  $this->_deleteMoveNeighbor($node, $key);
     }
 
-    private function _deleteMoveNeighbor (BTree_Node $node, $key, $deleteFlag = BTree_Node::DELETE_FLAG_RIGHT) {
+    /**
+     * 借用临近节点的关键词进行删除操作
+     *
+     * @param   BTree_Node  $node   节点
+     * @param   string      $key    关键词
+     * @return  bool                执行结果
+     */
+    private function _deleteMoveNeighbor (BTree_Node $node, $key) {
 
-
+        return  $this->_deleteMoveRight($node, $key) || $this->_deleteMoveLeft($node, $key);
     }
 
     /**
@@ -230,7 +232,7 @@ class   BTree_Delete
             return  $this->_mergeStore($left, $right, $parent, $nextParent, $midKey, $midValue, $key);
         }
 
-        if ($this->_deleteMoveRight($parent, $midKey) || $this->_deleteMoveLeft($parent, $midKey)) {
+        if ($this->_deleteMoveNeighbor($parent, $midKey)) {
 
             return  $this->_mergeStore($left, $right, $parent, $nextParent, $midKey, $midValue, $key, true);
         }

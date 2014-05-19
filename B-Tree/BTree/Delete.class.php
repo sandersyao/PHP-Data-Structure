@@ -126,6 +126,11 @@ class   BTree_Delete
         return  false;
     }
 
+    private function _deleteMoveNeighbor (BTree_Node $node, $key, $deleteFlag = BTree_Node::DELETE_FLAG_RIGHT) {
+
+
+    }
+
     /**
      * 从左叶侧节点借值进行删除
      *
@@ -133,24 +138,24 @@ class   BTree_Delete
      * @param   string      $key    关键词
      * @return  bool                成功返回true|如果邻居节点不存在返回false
      */
-    private function _deleteMoveLeft (BTree_Node $node, $key, $deleteFlag = BTree_Node::DELETE_FLAG_RIGHT) {
+    private function _deleteMoveLeft (BTree_Node $node, $key) {
 
-        $parentNode         = $node->parent();
-        $neighborLeft       = $this->_neighborLeft($node);
+        $parentNode     = $node->parent();
+        $neighborLeft   = $this->_neighborLeft($node);
 
         if (!($neighborLeft instanceof BTree_Node)) {
 
             return  false;
         }
 
-        $keyParentLeft      = $parentNode->pointerLeftKey($node->pointer());
+        $keyParentLeft  = $parentNode->pointerLeftKey($node->pointer());
 
         if (count($neighborLeft->data()) > $this->_leastNumberKeys()) {
 
             $valueParentLeft    = $parentNode->match($keyParentLeft);
             $keyLeft            = $neighborLeft->getRightBorderKey();
             $valueLeft          = $neighborLeft->match($keyLeft);
-            $node->delete($key, $deleteFlag);
+            $node->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
             $node->insert($keyParentLeft, $valueParentLeft, $neighborLeft->rightBorderChild(), $node->leftBorderChild());
             $parentNode->replaceKey($keyParentLeft, $keyLeft, $valueLeft);
             $neighborLeft->delete($keyLeft, BTree_Node::DELETE_FLAG_RIGHT);
@@ -163,7 +168,7 @@ class   BTree_Delete
 
         $this->_deleteMerge($neighborLeft, $node, $parentNode, $keyParentLeft, $key);
 
-        return              true;
+        return          true;
     }
 
     /**
@@ -173,24 +178,24 @@ class   BTree_Delete
      * @param   string      $key    关键词
      * @return  bool                成功返回true|如果邻居节点不存在返回false
      */
-    private function _deleteMoveRight (BTree_Node $node, $key, $deleteFlag = BTree_Node::DELETE_FLAG_RIGHT) {
+    private function _deleteMoveRight (BTree_Node $node, $key) {
 
-        $parentNode         = $node->parent();
-        $neighborRight      = $this->_neighborRight($node);
+        $parentNode     = $node->parent();
+        $neighborRight  = $this->_neighborRight($node);
 
         if (!($neighborRight instanceof BTree_Node)) {
 
             return  false;
         }
 
-        $keyParentRight     = $parentNode->pointerRightKey($node->pointer());
+        $keyParentRight = $parentNode->pointerRightKey($node->pointer());
 
         if (count($neighborRight->data()) > $this->_leastNumberKeys()) {
 
             $valueParentRight   = $parentNode->match($keyParentRight);
             $keyRight           = $neighborRight->getLeftBorderKey();
             $valueRight         = $neighborRight->match($keyRight);
-            $node->delete($key, $deleteFlag);
+            $node->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
             $node->insert($keyParentRight, $valueParentRight, $node->rightBorderChild(), $neighborRight->leftBorderChild());
             $parentNode->replaceKey($keyParentRight, $keyRight, $valueRight);
             $neighborRight->delete($keyRight, BTree_Node::DELETE_FLAG_LEFT);
@@ -203,7 +208,7 @@ class   BTree_Delete
 
         $this->_deleteMerge($node, $neighborRight, $parentNode, $keyParentRight, $key);
 
-        return              true;
+        return          true;
     }
 
     /**
@@ -225,52 +230,12 @@ class   BTree_Delete
             return  $this->_mergeStore($left, $right, $parent, $nextParent, $midKey, $midValue, $key);
         }
 
-        $neighborRight   = $this->_neighborRight($parent);
+        if ($this->_deleteMoveRight($parent, $midKey) || $this->_deleteMoveLeft($parent, $midKey)) {
 
-        if ($neighborRight instanceof BTree_Node) {
-
-            $nextRight  = $neighborRight;
-            $nextLeft   = $parent;
-            $nextMidKey = $nextParent->pointerRightKey($parent->pointer());
-
-            if (count($neighborRight->data()) > $this->_leastNumberKeys()) {
-
-                $this->_deleteMoveRight($parent, $midKey);
-            } else {
-
-                $this->_deleteMerge($nextLeft, $nextRight, $nextParent, $nextMidKey, $midKey);
-            }
+            return  $this->_mergeStore($left, $right, $parent, $nextParent, $midKey, $midValue, $key, true);
         }
 
-        $neighborLeft    = $this->_neighborLeft($parent);
-
-        if ($this->canMergeWithNeighbor($neighborLeft)) {
-
-            $nextRight  = $parent;
-            $nextLeft   = $neighborLeft;
-            $nextMidKey = $nextParent->pointerRightKey($neighborLeft->pointer());
-
-            if (count($neighborLeft->data()) > $this->_leastNumberKeys()) {
-
-                $this->_deleteMoveLeft($parent, $midKey);
-            } else {
-
-                $this->_deleteMerge($nextLeft, $nextRight, $nextParent, $nextMidKey, $midKey);
-            }
-        }
-
-        return      $this->_mergeStore($left, $right, $parent, $nextParent, $midKey, $midValue, $key);
-    }
-
-    /**
-     * 判断是否可以合并上级
-     *
-     * @param   mixed   $neighbor   上级节点
-     * @return  bool                判断结果
-     */
-    private function canMergeWithNeighbor ($neighbor) {
-
-        return  $neighbor instanceof BTree_Node && count($neighbor->data()) > $this->_leastNumberKeys();
+        return  false;
     }
 
     /**
@@ -288,22 +253,28 @@ class   BTree_Delete
     /**
      * 合并删除
      *
-     * @param   BTree_Node  $left       左侧节点
-     * @param   BTree_Node  $right      右侧节点
-     * @param   BTree_Node  $parent     上级节点
-     * @param   BTree_Node  $nextParent 上级节点的上级节点
-     * @param   string      $midKey     相夹关键词
-     * @param   string      $midValue   相夹值
-     * @param   string      $key        目标关键词
-     * @return  BTree_Node              左侧节点
+     * @param   BTree_Node  $left           左侧节点
+     * @param   BTree_Node  $right          右侧节点
+     * @param   BTree_Node  $parent         上级节点
+     * @param   BTree_Node  $nextParent     上级节点的上级节点
+     * @param   string      $midKey         相夹关键词
+     * @param   string      $midValue       相夹值
+     * @param   string      $key            目标关键词
+     * @param   bool        $isSaveParent   上级节点是否已保存
+     * @return  BTree_Node                  左侧节点
      */
-    private function _mergeStore (BTree_Node $left, BTree_Node $right, BTree_Node $parent, BTree_Node $nextParent, $midKey, $midValue, $key) {
+    private function _mergeStore (BTree_Node $left, BTree_Node $right, BTree_Node $parent, BTree_Node $nextParent, $midKey, $midValue, $key, $isSaveParent = false) {
 
         $left->insert($midKey, $midValue, $left->rightBorderChild(), $right->leftBorderChild());
         $left->merge($right);
         $left->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
         $parent->delete($midKey, BTree_Node::DELETE_FLAG_RIGHT);
-        $this->_mergeStoreParent($parent, $left, $nextParent);
+
+        if (!$isSaveParent) {
+
+            $this->_mergeStoreParent($parent, $left, $nextParent);
+        }
+
         $this->_store->writeNode($left);
 
         return      $left;

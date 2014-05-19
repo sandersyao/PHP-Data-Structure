@@ -49,7 +49,9 @@ class   BTree_Node {
         $keyList            = array_map('strval', array_keys($data));
         $valueList          = array_map('intval', array_values($data));
         $this->_data        = array_combine($keyList, $valueList);
-        $this->_children    = array_slice(array_values($children), 0, count($data) + 1);
+        $this->_children    = count($data) < count($children)
+                            ? array_slice(array_values($children), 0, count($data) + 1)
+                            : array_pad(array_values($children), count($data) + 1, 0);
         $this->_parent      = $parent;
         $this->_pointer     = $pointer;
     }
@@ -231,7 +233,7 @@ class   BTree_Node {
 
     public  function isLeaf () {
 
-        return  $this->_children[0] <= 0;
+        return  0 == count($this->_children) || $this->_children[0] <= 0;
     }
 
     /**

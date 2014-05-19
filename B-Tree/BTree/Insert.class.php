@@ -50,7 +50,7 @@ final   class   BTree_Insert
 
         if (BTree_Validate::value($currentNode->match($key))) {
 
-            throw   new Exception('key exists');
+            throw   new Exception('key ' . $key . ' exists');
         }
 
         $this->_insertNode($currentNode, $key, $value);

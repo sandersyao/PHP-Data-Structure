@@ -3,8 +3,8 @@ define('STRUCTURE', 'B-Tree');
 include 'init.inc.php';
 
 $options    = array(
-    'number_slots'  => 5,
-    'length_key'    => 100,
+    'number_slots'  => 3,
+    'length_key'    => 10,
 );
 $file       = 'index.btree';
 $index      = BTree::open($file, $options);
@@ -59,6 +59,13 @@ switch ($command) {
                     'key'   => $key,
                 )
             );
+
+            if (false != $index->command('select', array('key'=>$key))) {
+
+                echo "$offset delete failure: $key \n";
+                exit;
+            }
+
             echo "$offset delete seccess: $key \n";
             $offset ++;
         }
@@ -106,7 +113,7 @@ switch ($command) {
 
     case    'debug' :
 
-        $pointer    = (int) $argv[2];
+        $pointer    = isset($argv[2])   ? (int) $argv[2]    : 0;
 
         $index->command(
             $command,
@@ -120,13 +127,3 @@ switch ($command) {
 $index  = NULL;
 
 
-
-/**
-              35   46   71
-        27 30  39 43
-25 26   28 29    31 32 33 34
-
-                  46    71
-        30 35 39 43
-26 27 28 29      31 32 33 34
-*/

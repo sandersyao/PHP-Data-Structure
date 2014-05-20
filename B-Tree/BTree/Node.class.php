@@ -44,6 +44,14 @@ class   BTree_Node {
      */
     private $_pointer;
 
+    /**
+     * 构造函数
+     *
+     * @param   arary           $data       数据
+     * @param   array           $children   子节点指针
+     * @param   BTree_Node|null $parent     上级节点
+     * @param   int             $pointer    当前节点指针
+     */
     public  function __construct ($data = array(), $children = array(), $parent = NULL, $pointer = self::POINTER_NEW) {
 
         $keyList            = array_map('strval', array_keys($data));
@@ -56,11 +64,22 @@ class   BTree_Node {
         $this->_pointer     = $pointer;
     }
 
+    /**
+     * 返回指针
+     *
+     * @return  int 当前节点指针
+     */
     public  function pointer () {
 
         return  $this->_pointer;
     }
 
+    /**
+     * 匹配关键词对应的值
+     *
+     * @param   string      $key    关键词
+     * @return  int|bool            值|如果关键词不存在返回false
+     */
     public  function match ($key) {
 
         if (isset($this->_data[$key])) {
@@ -71,6 +90,12 @@ class   BTree_Node {
         return  false;
     }
 
+    /**
+     * 匹配关键词对应的子节点指针
+     *
+     * @param   string      $key    关键词
+     * @return  int|bool            子节点指针|如果关键词存在返回false
+     */
     public  function matchChildren ($key) {
 
         $keyList    = array_keys($this->_data);
@@ -87,6 +112,12 @@ class   BTree_Node {
 
     /**
      * 插入key
+     *
+     * @param   string  $key            关键词
+     * @param   int     $value          值
+     * @param   int     $pointerLeft    左侧子节点指针
+     * @param   int     $pointerRight   右侧子节点指针
+     * @return  bool                    执行结果
      */
     public  function insert ($key, $value, $pointerLeft = 0, $pointerRight = 0) {
 
@@ -106,10 +137,16 @@ class   BTree_Node {
         array_splice($this->_children, $offset, 1, array($pointerLeft, $pointerRight));
         $this->_children    = array_slice($this->_children, 0, count($keyList) + 1);
         $this->_data        = array_combine($keyList, $valueList);
+
+        return  true;
     }
 
     /**
      * 删除key
+     *
+     * @param   string  $key        关键词
+     * @param   string  $deleteFlag 从关键词左侧或者右侧删除子节点指针
+     * @return  bool                执行结果
      */
     public  function delete ($key, $deleteFlag = self::DELETE_FLAG_LEFT) {
 
@@ -139,8 +176,15 @@ class   BTree_Node {
         }
 
         $this->_data    = array_combine($keyList, $valueList);
+
+        return          true;
     }
 
+    /**
+     * 左边缘子节点指针
+     *
+     * @return  int 子节点指针
+     */
     public  function leftBorderChild () {
 
         reset($this->_children);
@@ -148,11 +192,22 @@ class   BTree_Node {
         return  count($this->_children) > 0 ? current($this->_children) : 0;
     }
 
+    /**
+     * 右边缘子节点指针
+     *
+     * @return  int 子节点指针
+     */
     public  function rightBorderChild () {
 
         return  count($this->_children) > 0 ? end($this->_children) : 0;
     }
 
+    /**
+     * 指针左侧相邻子节点指针
+     *
+     * @param   int $pointer    指针
+     * @return  int             子节点指针
+     */
     public  function pointerLeftChild ($pointer) {
 
         $offset = array_search($pointer, $this->_children);
@@ -162,6 +217,12 @@ class   BTree_Node {
                 : self::POINTER_NEW;
     }
 
+    /**
+     * 指针右侧相邻子节点指针
+     *
+     * @param   int $pointer    指针
+     * @return  int             子节点指针
+     */
     public  function pointerRightChild ($pointer) {
 
         $offset = array_search($pointer, $this->_children);
@@ -171,6 +232,12 @@ class   BTree_Node {
                 : self::POINTER_NEW;
     }
 
+    /**
+     * 指针左侧相邻关键词
+     *
+     * @param   int     $pointer    指针
+     * @return  string              关键词
+     */
     public  function pointerLeftKey ($pointer) {
 
         $offset     = array_search($pointer, $this->_children);
@@ -181,6 +248,12 @@ class   BTree_Node {
                     : NULL;
     }
 
+    /**
+     * 指针右侧相邻关键词
+     *
+     * @param   int     $pointer    指针
+     * @return  string              关键词
+     */
     public  function pointerRightKey ($pointer) {
 
         $offset     = array_search($pointer, $this->_children);
@@ -191,6 +264,12 @@ class   BTree_Node {
                     : NULL;
     }
 
+    /**
+     * 关键词左侧子节点指针
+     *
+     * @param   string      $key    关键词
+     * @return  int|bool            子节点指针|失败返回false
+     */
     public  function keyLeftChild ($key) {
 
         $keyList    = array_keys($this->_data);
@@ -204,6 +283,12 @@ class   BTree_Node {
         return      $this->_children[$offset];
     }
 
+    /**
+     * 关键词右侧子节点指针
+     *
+     * @param   string      $key    关键词
+     * @return  int|bool            子节点指针|失败返回false
+     */
     public  function keyRightChild ($key) {
 
         $keyList    = array_keys($this->_data);
@@ -217,6 +302,14 @@ class   BTree_Node {
         return      $this->_children[$offset + 1];
     }
 
+    /**
+     * 替换关键词
+     *
+     * @param   string      $keyOld     目标关键词
+     * @param   string      $keyNew     要替换的关键词
+     * @param   int         $valueNew   要替换的值
+     * @return  bool                    执行结果
+     */
     public  function replaceKey ($keyOld, $keyNew, $valueNew) {
 
         $keyList        = array_keys($this->_data);
@@ -231,8 +324,15 @@ class   BTree_Node {
         array_splice($keyList, $offset, 1, $keyNew);
         array_splice($valueList, $offset, 1, $valueNew);
         $this->_data    = array_combine($keyList, $valueList);
+
+        return          true;
     }
 
+    /**
+     * 返回本节点是否是叶节点
+     *
+     * @return  bool    判断结果
+     */
     public  function isLeaf () {
 
         reset($this->_children);
@@ -241,7 +341,12 @@ class   BTree_Node {
     }
 
     /**
-     * 二分法查找位置 (该值不存在)
+     * 二分法查找位置 (该关键词不存在)
+     *
+     * @param   string  $key    关键词
+     * @param   array   $list   关键词列表
+     * @param   int     $offset 初始位置
+     * @return  int             目地位置
      */
     private function _dichotomySearch ($key, $list, $offset = 0) {
 
@@ -268,20 +373,35 @@ class   BTree_Node {
                     : $this->_dichotomySearch($key, $listRight, $offset + $offsetMiddle);
     }
 
-    public  function getLeftBorderKey () {
+    /**
+     * 获取左端关键词
+     *
+     * @return  string  关键词
+     */
+    public  function leftBorderKey () {
 
         $keyList    = array_keys($this->_data);
 
         return  current($keyList);
     }
 
-    public  function getRightBorderKey () {
+    /**
+     * 获取右端关键词
+     *
+     * @return  string  关键词
+     */
+    public  function rightBorderKey () {
 
         $keyList    = array_keys($this->_data);
 
         return  end($keyList);
     }
 
+    /**
+     * 向右侧分裂节点
+     *
+     * @return  array|bool  成功返回数组包含 中间关键词 中间值 右侧节点|失败返回false
+     */
     public  function separateRight () {
 
         $count              = count($this->_data);
@@ -310,6 +430,11 @@ class   BTree_Node {
         return              array($midKey, $midValue, $rightNode);
     }
 
+    /**
+     * 合并节点
+     *
+     * @param   BTree_Node  $node   待合并节点
+     */
     public  function merge (BTree_Node $node) {
 
         $offset         = 0;
@@ -322,6 +447,11 @@ class   BTree_Node {
         }
     }
 
+    /**
+     * 返回上级节点
+     *
+     * @return  BTree_Node  上级节点
+     */
     public  function parent () {
 
         return  $this->_parent instanceof self
@@ -329,21 +459,41 @@ class   BTree_Node {
                 : new self(array(), array(), NULL, self::POINTER_NEW_ROOT);
     }
 
+    /**
+     * 返回子节点指针列表
+     *
+     * @return  array   子节点指针列表
+     */
     public  function children () {
 
         return  $this->_children;
     }
 
+    /**
+     * 返回当前节点数据
+     *
+     * @return  array   当前节点数据
+     */
     public  function data () {
 
         return  $this->_data;
     }
 
+    /**
+     * 判断是否为新节点
+     *
+     * @return  bool    判断结果
+     */
     public  function isNew () {
 
         return  self::POINTER_NEW == $this->pointer();
     }
 
+    /**
+     * 判断是否为新的根节点
+     *
+     * @return  bool    判断结果
+     */
     public  function isNewRoot () {
 
         return  self::POINTER_NEW_ROOT == $this->pointer();

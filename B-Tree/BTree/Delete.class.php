@@ -87,7 +87,7 @@ class   BTree_Delete
 
         $value      = $node->match($key);
         $leafRight  = $this->_searchLeftBorderLeaf($node->keyRightChild($key), $node);
-        $keyRight   = $leafRight->getLeftBorderKey();
+        $keyRight   = $leafRight->leftBorderKey();
         $valueRight = $leafRight->match($keyRight);
         $node->replaceKey($key, $keyRight, $valueRight);
         $this->_store->writeNode($node);
@@ -155,7 +155,7 @@ class   BTree_Delete
         if (count($neighborLeft->data()) > $this->_leastNumberKeys()) {
 
             $valueParentLeft    = $parentNode->match($keyParentLeft);
-            $keyLeft            = $neighborLeft->getRightBorderKey();
+            $keyLeft            = $neighborLeft->rightBorderKey();
             $valueLeft          = $neighborLeft->match($keyLeft);
             $node->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
             $node->insert($keyParentLeft, $valueParentLeft, $neighborLeft->rightBorderChild(), $node->leftBorderChild());
@@ -195,7 +195,7 @@ class   BTree_Delete
         if (count($neighborRight->data()) > $this->_leastNumberKeys()) {
 
             $valueParentRight   = $parentNode->match($keyParentRight);
-            $keyRight           = $neighborRight->getLeftBorderKey();
+            $keyRight           = $neighborRight->leftBorderKey();
             $valueRight         = $neighborRight->match($keyRight);
             $node->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
             $node->insert($keyParentRight, $valueParentRight, $node->rightBorderChild(), $neighborRight->leftBorderChild());

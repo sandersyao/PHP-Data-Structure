@@ -265,11 +265,27 @@ class   BTree_Delete
      * @param   bool        $isSaveParent   上级节点是否已保存
      * @return  BTree_Node                  左侧节点
      */
-    private function _mergeStore (BTree_Node $left, BTree_Node $right, BTree_Node $parent, BTree_Node $nextParent, $midKey, $midValue, $key, $isSaveParent = false) {
+    private function _mergeStore (
+        BTree_Node $left,
+        BTree_Node $right,
+        BTree_Node $parent,
+        BTree_Node $nextParent,
+        $midKey,
+        $midValue,
+        $key,
+        $isSaveParent = false
+    ) {
+
+        if (BTree_Validate::value($left->match($key))) {
+
+            $left->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
+        } else {
+
+            $right->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
+        }
 
         $left->insert($midKey, $midValue, $left->rightBorderChild(), $right->leftBorderChild());
         $left->merge($right);
-        $left->delete($key, BTree_Node::DELETE_FLAG_RIGHT);
         $parent->delete($midKey, BTree_Node::DELETE_FLAG_RIGHT);
 
         if (!$isSaveParent) {

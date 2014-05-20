@@ -143,12 +143,14 @@ class   BTree_Node {
 
     public  function leftBorderChild () {
 
-        return  $this->_children[0];
+        reset($this->_children);
+
+        return  count($this->_children) > 0 ? current($this->_children) : 0;
     }
 
     public  function rightBorderChild () {
 
-        return  end($this->_children);
+        return  count($this->_children) > 0 ? end($this->_children) : 0;
     }
 
     public  function pointerLeftChild ($pointer) {
@@ -233,7 +235,9 @@ class   BTree_Node {
 
     public  function isLeaf () {
 
-        return  0 == count($this->_children) || $this->_children[0] <= 0;
+        reset($this->_children);
+
+        return  0 == count($this->_children) || current($this->_children) <= 0;
     }
 
     /**
@@ -250,7 +254,9 @@ class   BTree_Node {
 
         if (1 == $count) {
 
-            return  strval($key) > strval($list[0]) ? $offset + 1   : $offset;
+            reset($list);
+
+            return  strval($key) > strval(current($list)) ? $offset + 1   : $offset;
         }
 
         $offsetMiddle   = floor($count / 2);
@@ -266,7 +272,7 @@ class   BTree_Node {
 
         $keyList    = array_keys($this->_data);
 
-        return  $keyList[0];
+        return  current($keyList);
     }
 
     public  function getRightBorderKey () {

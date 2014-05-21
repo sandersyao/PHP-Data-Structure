@@ -50,6 +50,7 @@ final   class   BTree_Iterator implements
     /**
      * 构造函数
      *
+     * @param   BTree_Store $store      存储实例
      * @param   BTree_Node  $node       节点
      * @param   string      $key        关键词
      * @param   string      $operator   运算符

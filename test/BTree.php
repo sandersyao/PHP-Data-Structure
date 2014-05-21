@@ -99,6 +99,30 @@ switch ($command) {
         var_dump($value);
         break;
 
+    case    'compare' :
+
+        $key        = $argv[2];
+        $operator   = $argv[3];
+        $list       = $index->command(
+            $command,
+            array(
+                'key'       => $key,
+                'operator'  => $operator,
+            )
+        );
+
+        if (!($list instanceof Iterator)) {
+
+            var_dump($list);
+        }
+
+        foreach ($list as $key => $value) {
+
+            var_dump($key);
+        }
+
+        break;
+
     case    'delete' :
 
         $key    = $argv[2];

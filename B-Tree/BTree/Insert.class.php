@@ -5,7 +5,8 @@
 final   class   BTree_Insert
     implements BTree_Command {
 
-    use BTree_Search;
+    use BTree_Search,
+        BTree_CommandCommon;
 
     /**
      * 获取实例
@@ -76,7 +77,7 @@ final   class   BTree_Insert
 
         $currentNode->insert($key, $value, $pointerLeft, $pointerRight);
 
-        return  $this->_store->writeNode($currentNode, $this->_options);
+        return  $this->_store()->writeNode($currentNode, $this->_options);
     }
 
     /**
@@ -100,8 +101,8 @@ final   class   BTree_Insert
             $rightNode->insert($key, $value, $pointerLeft, $pointerRight);
         }
 
-        $pointerLeftMid     = $this->_store->writeNode($currentNode, $this->_options);
-        $pointerRightMid    = $this->_store->writeNode($rightNode, $this->_options);
+        $pointerLeftMid     = $this->_store()->writeNode($currentNode, $this->_options);
+        $pointerRightMid    = $this->_store()->writeNode($rightNode, $this->_options);
 
         return              $this->_insertNode($currentNode->parent(), $keyMid, $valueMid, $pointerLeftMid, $pointerRightMid);
     }
@@ -119,8 +120,8 @@ final   class   BTree_Insert
 
         $currentNode->insert($key, $value, $pointerLeft, $pointerRight);
         list($keyMid, $valueMid, $rightNode)    = $currentNode->separateRight();
-        $pointerLeftMid     = $this->_store->writeNode($currentNode);
-        $pointerRightMid    = $this->_store->writeNode($rightNode);
+        $pointerLeftMid     = $this->_store()->writeNode($currentNode);
+        $pointerRightMid    = $this->_store()->writeNode($rightNode);
 
         return              $this->_insertNode($currentNode->parent(), $keyMid, $valueMid, $pointerLeftMid, $pointerRightMid);
     }
@@ -132,7 +133,7 @@ final   class   BTree_Insert
      */
     private function _isSeparateFirst () {
 
-        return  $this->_options->numberSlots() % 2 == 1;
+        return  $this->_options()->numberSlots() % 2 == 1;
     }
 
     /**
@@ -142,6 +143,6 @@ final   class   BTree_Insert
      */
     private function _isFullNode (BTree_Node $node) {
 
-        return  count($node->data()) >= $this->_options->numberSlots();
+        return  count($node->data()) >= $this->_options()->numberSlots();
     }
 }

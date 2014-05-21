@@ -111,6 +111,27 @@ class   BTree_Node {
     }
 
     /**
+     * 匹配位置
+     *
+     * @param   string  $key    键
+     * @return  array           位置列表
+     */
+    public  function matchPosition ($key) {
+
+        $keyList    = array_keys($this->_data);
+        $offset     = array_search($key, $keyList);
+
+        if (is_int($offset)) {
+
+            return  array($offset);
+        }
+
+        $offset     = $this->_dichotomySearch($key, $keyList);
+
+        return      array($offset - 1, $offset);
+    }
+
+    /**
      * 插入key
      *
      * @param   string  $key            关键词
@@ -497,5 +518,29 @@ class   BTree_Node {
     public  function isNewRoot () {
 
         return  self::POINTER_NEW_ROOT == $this->pointer();
+    }
+
+    /**
+     * 返回子节点指针位置
+     *
+     * @param   int         $pointer    指针
+     * @return  int|bool                位置
+     */
+    public  function childPosition ($pointer) {
+
+        return  array_search($pointer, $this->_children);
+    }
+
+    /**
+     * 返回位置上的子节点指针
+     *
+     * @param   int         $offset 位置
+     * @return  int|bool            指针
+     */
+    public  function childPointer ($offset) {
+
+        return  isset($this->_children[$offset])
+                ? $this->_children[$offset]
+                : false;
     }
 }

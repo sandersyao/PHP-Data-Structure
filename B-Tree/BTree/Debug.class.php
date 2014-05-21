@@ -4,7 +4,7 @@
  */
 class   BTree_Debug implements BTree_Command {
 
-    use BTree_Search;
+    use BTree_CommandCommon;
 
     /**
      * 获取实例
@@ -30,15 +30,20 @@ class   BTree_Debug implements BTree_Command {
         $this->_options = $options;
     }
 
+    /**
+     * 调用本命令逻辑
+     *
+     * @param   array   $params 命令参数
+     */
     public  function call ($params) {
 
-        $rootPointer    = $this->_store->rootPointer();
+        $rootPointer    = $this->_store()->rootPointer();
         $pointer        = isset($params['pointer']) && $params['pointer'] > 0
                         ? $params['pointer']
                         : $rootPointer;
         $data           = array(
             'pointer_root'  => $rootPointer,
-            'target'        => $this->_store->readNode($pointer),
+            'target'        => $this->_store()->readNode($pointer),
         );
 
         var_dump($data);

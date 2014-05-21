@@ -4,20 +4,6 @@
  */
 trait BTree_Search {
 
-    /**
-     * 存储
-     */
-    protected   $_store;
-
-    /**
-     * 配置数据
-     */
-    protected   $_options;
-
-    /**
-     * 未保存的
-     */
-    protected   $_listUnsavedNode   = array();
 
     /**
      * 匹配到节点
@@ -32,11 +18,11 @@ trait BTree_Search {
 
         if (NULL == $pointer) {
 
-            $pointer    = $this->_store->rootPointer();
+            $pointer    = $this->_store()->rootPointer();
             $parentNode = NULL;
         }
 
-        $currentNode    = $this->_store->readNode($pointer, $parentNode);
+        $currentNode    = $this->_store()->readNode($pointer, $parentNode);
         $value          = $currentNode->match($key);
 
         if (BTree_Validate::value($value)) {
@@ -53,4 +39,11 @@ trait BTree_Search {
 
         return  $this->_searchNode($key, $childPointer, $currentNode);
     }
+
+    /**
+     * 获取存储实例
+     *
+     * @return  BTree_Store 存储实例
+     */
+    abstract    protected   function _store ();
 }

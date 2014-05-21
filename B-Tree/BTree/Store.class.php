@@ -112,7 +112,7 @@ class   BTree_Store {
         $pointerString  = substr($content, 0, $this->_pointerAreaSize());
         $pointerList    = unpack('l*', $pointerString);
         $keyString      = substr($content, $this->_pointerAreaSize(), $this->_keyAreaSize());
-        $keyClips       = str_split($keyString, $this->_options->keyLength());
+        $keyClips       = str_split($keyString, $this->_options()->keyLength());
         $keyList        = array_filter(array_map('rtrim', $keyClips), array('BTree_Validate', 'key'));
         $valueString    = substr($content, $this->_pointerAreaSize() + $this->_keyAreaSize(), $this->_valueAreaSize());
         $valueList      = array_filter(unpack('l*', $valueString), array('BTree_Validate', 'value'));
@@ -131,7 +131,7 @@ class   BTree_Store {
     public  function writeNode (BTree_Node $node) {
 
         $pointer            = $this->_seekForWrite($node);
-        $childrenPointer    = array_slice($node->children(), 0, $this->_options->numberChildren());
+        $childrenPointer    = array_slice($node->children(), 0, $this->_options()->numberChildren());
         $childrenContent    = str_pad(implode('', array_map(array($this, '_longPack'), $childrenPointer)), $this->_pointerAreaSize(), $this->_longPack(0));
         $keyContent         = str_pad(implode('', array_map(array($this, '_keyPad'), array_keys($node->data()))), $this->_keyAreaSize(), ' ');
         $valueContent       = str_pad(implode('', array_map(array($this, '_longPack'), $node->data())), $this->_valueAreaSize(), $this->_longPack(0));
@@ -229,7 +229,7 @@ class   BTree_Store {
      */
     private function _keyPad ($key) {
 
-        return  str_pad($key, $this->_options->keyLength(), ' ');
+        return  str_pad($key, $this->_options()->keyLength(), ' ');
     }
 
     /**
@@ -398,5 +398,15 @@ class   BTree_Store {
     private function _pointerRootSize () {
 
         return  $this->_pointerRootSize;
+    }
+
+    /**
+     * 获取本实例配置
+     *
+     * @return  BTree_Options   配置实例
+     */
+    private function _options () {
+
+        return  $this->_options;
     }
 }

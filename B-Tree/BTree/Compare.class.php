@@ -1,9 +1,9 @@
 <?php
 /**
- * 查询单个关键词
+ * 比较查询逻辑
  */
-final   class   BTree_Select
-    implements BTree_Command {
+final   class   BTree_Compare implements
+    BTree_Command {
 
     use BTree_Search,
         BTree_CommandCommon;
@@ -45,14 +45,18 @@ final   class   BTree_Select
      */
     public  function call ($params) {
 
-        $key    = $params['key'];
-        $node   = $this->_searchNode($key);
+        $enumOperator   = array(BTree_Iterator::OPERATOR_GREATER_THAN, BTree_Iterator::OPERATOR_LESS_THAN);
+        $key            = $params['key'];
+        $operator       = isset($params['operator']) && in_array($params['operator'], $enumOperator)
+                        ? $params['operator']
+                        : BTree_Iterator::OPERATOR_GREATER_THAN;
+        $node           = $this->_searchNode($key);
 
-        if ($node instanceof BTree_Node) {
+        if (!($node instanceof BTree_Node)) {
 
-            return  $node->match($key);
+            return  false;
         }
 
-        return  false;
+        return  new BTree_Iterator($this->_store(), $node, $key, $operator);
     }
 }

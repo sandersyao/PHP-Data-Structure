@@ -2,10 +2,12 @@
 /**
  * B-Tree删除
  */
-class   BTree_Delete
+final   class   BTree_Delete
     implements BTree_Command {
 
-    use BTree_Search;
+    use BTree_Search,
+        BTree_Traversal,
+        BTree_CommandCommon;
 
     /**
      * 获取实例
@@ -90,7 +92,7 @@ class   BTree_Delete
         $keyRight   = $leafRight->leftBorderKey();
         $valueRight = $leafRight->match($keyRight);
         $node->replaceKey($key, $keyRight, $valueRight);
-        $this->_store->writeNode($node);
+        $this->_store()->writeNode($node);
 
         return      array($leafRight, $keyRight);
     }
@@ -113,7 +115,7 @@ class   BTree_Delete
         ) {
 
             $node->delete($key);
-            $this->_store->writeNode($node);
+            $this->_store()->writeNode($node);
 
             return  true;
         }
@@ -161,9 +163,9 @@ class   BTree_Delete
             $node->insert($keyParentLeft, $valueParentLeft, $neighborLeft->rightBorderChild(), $node->leftBorderChild());
             $parentNode->replaceKey($keyParentLeft, $keyLeft, $valueLeft);
             $neighborLeft->delete($keyLeft, BTree_Node::DELETE_FLAG_RIGHT);
-            $this->_store->writeNode($node);
-            $this->_store->writeNode($parentNode);
-            $this->_store->writeNode($neighborLeft);
+            $this->_store()->writeNode($node);
+            $this->_store()->writeNode($parentNode);
+            $this->_store()->writeNode($neighborLeft);
 
             return              true;
         }
@@ -201,9 +203,9 @@ class   BTree_Delete
             $node->insert($keyParentRight, $valueParentRight, $node->rightBorderChild(), $neighborRight->leftBorderChild());
             $parentNode->replaceKey($keyParentRight, $keyRight, $valueRight);
             $neighborRight->delete($keyRight, BTree_Node::DELETE_FLAG_LEFT);
-            $this->_store->writeNode($node);
-            $this->_store->writeNode($parentNode);
-            $this->_store->writeNode($neighborRight);
+            $this->_store()->writeNode($node);
+            $this->_store()->writeNode($parentNode);
+            $this->_store()->writeNode($neighborRight);
 
             return              true;
         }
@@ -293,7 +295,7 @@ class   BTree_Delete
             $this->_mergeStoreParent($parent, $left, $nextParent);
         }
 
-        $this->_store->writeNode($left);
+        $this->_store()->writeNode($left);
 
         return      $left;
     }
@@ -309,13 +311,13 @@ class   BTree_Delete
 
         if (count($parent->data()) == 0 && $nextParent->isNewRoot()) {
 
-            $this->_store->rootPointer($left->pointer());
-            $this->_store->saveRootPointer();
+            $this->_store()->rootPointer($left->pointer());
+            $this->_store()->saveRootPointer();
 
             return  ;
         }
 
-        $this->_store->writeNode($parent);
+        $this->_store()->writeNode($parent);
     }
 
     /**
@@ -331,7 +333,7 @@ class   BTree_Delete
 
         if (BTree_Validate::pointer($pointerRight)) {
 
-            return  $this->_store->readNode($pointerRight, $parentNode);
+            return  $this->_store()->readNode($pointerRight, $parentNode);
         }
 
         return          false;
@@ -350,7 +352,7 @@ class   BTree_Delete
 
         if (BTree_Validate::pointer($pointerLeft)) {
 
-            return  $this->_store->readNode($pointerLeft, $parentNode);
+            return  $this->_store()->readNode($pointerLeft, $parentNode);
         }
 
         return          false;
@@ -363,44 +365,6 @@ class   BTree_Delete
      */
     private function _leastNumberKeys () {
 
-        return  ceil($this->_options->numberSlots() / 2) - 1;
-    }
-
-    /**
-     * 左邻叶节点
-     *
-     * @param   int         $pointer    指针
-     * @param   BTree_Node  $parentNode 上级节点
-     * @return  BTree_Node              目标节点
-     */
-    private function _searchLeftBorderLeaf ($pointer, BTree_Node $parentNode) {
-
-        $currentNode    = $this->_store->readNode($pointer, $parentNode);
-
-        if ($currentNode->isLeaf()) {
-
-            return  $currentNode;
-        }
-
-        return          $this->_searchLeftBorderLeaf($currentNode->leftBorderChild(), $currentNode);
-    }
-
-    /**
-     * 右邻叶节点
-     *
-     * @param   int         $pointer    指针
-     * @param   BTree_Node  $parentNode 上级节点
-     * @return  BTree_Node              目标节点
-     */
-    private function _searchRightBorderLeaf ($pointer, $parentNode) {
-
-        $currentNode    = $this->_store->readNode($pointer, $parentNode);
-
-        if ($currentNode->isLeaf()) {
-
-            return  $currentNode;
-        }
-
-        return          $this->_searchRightBorderLeaf($currentNode->rightBorderChild(), $currentNode);
+        return  ceil($this->_options()->numberSlots() / 2) - 1;
     }
 }

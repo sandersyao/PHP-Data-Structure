@@ -13,7 +13,6 @@ class   Sort_Merge {
 
         $compare    = is_callable($compare) ? $compare  : array(__CLASS__, 'compareDefault');
         $splite     = self::_spliteNatural($src, $compare);
-
         self::_merge($src, $splite, $compare);
     }
 
@@ -23,13 +22,15 @@ class   Sort_Merge {
     private static  function _spliteNatural (Sort_SRC $src, $compare) {
 
         $splite = new Sort_SRC;
+        $status = 1;
 
         for ($offset = 1; $offset < count($src); $offset ++) {
 
             $result = call_user_func($compare, $src[$offset - 1], $src[$offset]);
 
-            if ($result < 0) {
+            if ($result != 0 && $result != $status) {
 
+                $status     = $result;
                 $splite[]   = $offset;
             }
         }
@@ -51,7 +52,7 @@ class   Sort_Merge {
         $listRight  = new Sort_SRC;
         $status     = 1;
 
-        for ($offsetStart   = $offsetSrc = 0,$offsetSplite = 0; $offsetSrc < count($src); $offsetSrc ++) {
+        for ($offsetStart   = $offsetSrc    = $offsetSplite = 0; $offsetSrc < count($src); $offsetSrc ++) {
 
             if ($offsetSrc == $splite[$offsetSplite]) {
 
@@ -101,6 +102,9 @@ class   Sort_Merge {
 
     private static  function _combine (Sort_SRC $src, $compare, $start, Sort_SRC $left, Sort_SRC $right) {
 
+        self::_initializeOrder($left, $compare);
+        self::_initializeOrder($right, $compare);
+
         for ($offsetSrc = $offsetLeft = $offsetRight = 0; $offsetLeft < count($left) && $offsetRight < count($right); $offsetSrc ++) {
 
             $result = call_user_func($compare, $left[$offsetLeft], $right[$offsetRight]);
@@ -130,6 +134,16 @@ class   Sort_Merge {
 
                 $src[$offsetSrc + $start]   = $right[$offsetRight];
             }
+        }
+    }
+
+    private static  function _initializeOrder (Sort_SRC $list, $compare) {
+
+        $count  = count($list);
+
+        if ($count > 0 && 0 > call_user_func($compare, $list[0], $list[$count - 1])) {
+
+            $list->reverse();
         }
     }
 

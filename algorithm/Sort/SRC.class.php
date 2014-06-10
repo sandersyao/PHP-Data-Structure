@@ -6,25 +6,76 @@ class   Sort_SRC implements
     ArrayAccess,
     Countable {
 
+    /**
+     * 默认元素尺寸
+     */
     const   SIZE_ELEMENT    = 4;
+
+    /**
+     * 默认值位置
+     */
     const   POS_VALUE       = 0;
+
+    /**
+     * 默认值大小
+     */
     const   SIZE_VALUE      = 4;
+
+    /**
+     * 默认值类型
+     */
     const   TYPE_VALUE      = 'l';
 
+    /**
+     * 源数据
+     */
     private $_src           = '';
 
+    /**
+     * 元素尺寸
+     */
     private $_sizeElement   = self::SIZE_ELEMENT;
 
+    /**
+     * 值位置
+     */
     private $_posValue      = self::POS_VALUE;
 
+    /**
+     * 值尺寸
+     */
     private $_sizeValue     = self::SIZE_VALUE;
 
+    /**
+     * 值类型
+     */
     private $_typeValue     = self::TYPE_VALUE;
 
+    /**
+     * 方向
+     */
+    private $_derict        = 1;
+
+    /**
+     * 构造函数
+     *
+     * @param   string  $src        源数据
+     * @param   array   $options    配置
+     */
     public  function __construct ($src = '', $options = array()) {
 
-        $this->_src = $src;
+        $this->_src     = $src;
         $this->_options = $options;
+    }
+
+    public  function reverse () {
+
+        $this->_derict *= -1;
+    }
+
+    public  function clean () {
+
+        $this->_src = '';
     }
 
     public  function offsetExists ($offset) {
@@ -50,7 +101,9 @@ class   Sort_SRC implements
 
     public  function offsetUnset ($offset) {
 
-        return  ;
+        $this->_src = $this->_derict > 0
+                    ? substr_replace($this->_src, '', $offset * $this->_sizeElement * $this->_derict, $this->_sizeElement)
+                    : substr_replace($this->_src, '', ($offset + 1) * $this->_sizeElement * $this->_derict, $this->_sizeElement);
     }
 
     public  function count () {
@@ -58,14 +111,35 @@ class   Sort_SRC implements
         return  (int) floor(strlen($this->_src) / $this->_sizeElement);
     }
 
+    public  function __toString () {
+
+        $str    = '[';
+
+        for ($offset = 0; $offset < $this->count(); $offset ++) {
+
+            $str    .= 0 == $offset ? ''    : ',';
+            $str    .= $this->offsetGet($offset);
+        }
+
+        return  $str . ']';
+    }
+
     private function _setElement ($offset, $element) {
 
-        $this->_replace($offset * $this->_sizeElement, $element);
+        if ($this->_derict > 0) {
+
+            $this->_replace($offset * $this->_sizeElement * $this->_derict, $element);
+        } else {
+
+            $this->_replace(($offset + 1) * $this->_sizeElement * $this->_derict, $element);
+        }
     }
 
     private function _getElement ($offset) {
 
-        return  substr($this->_src, $offset * $this->_sizeElement, $this->_sizeElement);
+        return  $this->_derict > 0
+                ? substr($this->_src, $offset * $this->_sizeElement * $this->_derict, $this->_sizeElement)
+                : substr($this->_src, ($offset + 1) * $this->_sizeElement * $this->_derict, $this->_sizeElement);
     }
 
     private function _getValue ($element) {

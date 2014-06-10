@@ -4,8 +4,6 @@
  */
 class   Sort_Merge {
 
-    private static  $_splite;
-
     /**
      * 执行
      */

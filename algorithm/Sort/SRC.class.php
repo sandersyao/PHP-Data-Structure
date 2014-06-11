@@ -68,14 +68,42 @@ class   Sort_SRC implements
         $this->_options = $options;
     }
 
+    /**
+     * 逆序
+     */
     public  function reverse () {
 
         $this->_derict *= -1;
     }
 
+    /**
+     * 清空
+     */
     public  function clean () {
 
         $this->_src = '';
+    }
+
+    /**
+     * 交换
+     *
+     * @param   int $offsetA    第一个下标
+     * @param   int $offsetB    第二个下标
+     */
+    public  function swap ($offsetA, $offsetB) {
+
+        if ($offsetA == $offsetB) {
+
+            return  ;
+        }
+
+        $valueA = $this->offsetGet($offsetA);
+        $valueB = $this->offsetGet($offsetB);
+        $valueA ^= $valueB;
+        $valueB ^= $valueA;
+        $valueA ^= $valueB;
+        $this->offsetSet($offsetA, $valueA);
+        $this->offsetSet($offsetB, $valueB);
     }
 
     public  function offsetExists ($offset) {
